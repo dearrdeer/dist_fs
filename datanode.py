@@ -7,9 +7,18 @@ NODE_IP = '0.0.0.0'
 NODE_PORT = 8042
 SEPARATOR = ' '
 
-def put(client_socket, filename):
-    file = "./data/" + filename
-    with open(file) as f:
+def make_dir(path):
+    # Just create all absent directories specified by namenode
+    current_path = "/"
+    current_path = os.path.join(current_path, path) 
+    os.makedirs(current_path)
+
+
+
+def put(client_socket, path):
+    make_dir(' '.join([str(elem) for elem in path.split('/')[:-1]]))
+    file = path
+    with open(file, 'rb') as f:
         while True:
             bytes_read = client_socket.recv(BUFFER_SIZE)
             if not bytes_read:
@@ -44,7 +53,6 @@ if __name__ == "__main__":
         client_socket, address = node.accept()
         command = client_socket.recv(BUFFER_SIZE).decode()
         type, arguments = command.split(SEPARATOR)
-        if type == 'put':
-            put(client_socket, arguments)
-        elif type == 'get':
-            get(client_socket, arguments)
+        if (type=="mkdir"):
+            make_dir(client_socket, arguments)
+        
