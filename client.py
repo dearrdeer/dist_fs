@@ -52,7 +52,9 @@ def send_comm(sock):
 				print(f"File {filename} not found")
 				return
 
-			comm = "put " + filename + " " + path_in_dfs
+			only_name = filename.split('/')[-1]
+
+			comm = "put " + only_name + " " + path_in_dfs
 		else:
 			print("Wrong usage of command. Use put /path/to/file /path/to/directory/in/dfs")			
 			return
@@ -95,17 +97,16 @@ def send_comm(sock):
 			temp_sock.listen(1)
 
 			datanode, address = temp_sock.accept()
-
 			with open(filename, "rb") as f:
 				while True:
 					bytes_read = f.read(BUFFER_SIZE)
 					if not bytes_read:
 						#file transmitting is done
 						break
-					temp_sock.send(bytes_read)
+					datanode.send(bytes_read)
 
 			print("File uploaded")
-			temp_sock.close()
+			datanode.close()
 
 	if type == "get":
 		if response == "Starting":
@@ -117,13 +118,13 @@ def send_comm(sock):
 			filename = path_to_file.split('/')[-1]
 			with open(filename, "wb") as f:
 				while True:
-					bytes_read = temp_sock.recv(BUFFER_SIZE)
+					bytes_read = datanode.recv(BUFFER_SIZE)
 					if not bytes_read:
 						break
 					f.write(bytes_read)
 
 			print("File downloaded")
-			temp_sock.close()
+			datanode.close()
 
 	if type == "cd":
 		if response == "Success":

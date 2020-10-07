@@ -7,19 +7,13 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
+ROOT_DIRECTORY = "/home/ayaz/PycharmProjects/dist_fs/dfs"
 REPLICATION_FACTOR = 1
 
 datanodes = ["localhost:8042", "localhost:8043", "localhost:8044"]
 alive_nodes = []
 
 files_map = dict()
-
-
-class DataNode:
-    def __init__(self, ip, port):
-        self.port = port
-        self.ip = ip
 
 def process_command(command, client_socket, address):
     args = command.split(' ')
@@ -54,14 +48,15 @@ def process_command(command, client_socket, address):
     if fs_command == "put":
         file_name = args[1]
         dir_where_put = args[2]
+        full_name = dir_where_put+'/'+file_name
 
         if not os.path.isdir(ROOT_DIRECTORY + dir_where_put):
             client_socket.send(f"{dir_where_put} does not exist".encode())
             return
 
         if os.path.isfile(ROOT_DIRECTORY+dir_where_put+'/'+file_name):
-        client_socket.send("File already exists".encode())
-        return
+            client_socket.send("File already exists".encode())
+            return
 
         if len(alive_nodes) < REPLICATION_FACTOR:
             client_socket.send("Number of alive data nodes is less than replication factor".encode())
@@ -69,9 +64,14 @@ def process_command(command, client_socket, address):
 
         os.mknod(ROOT_DIRECTORY + dir_where_put + '/' + file_name)
         nodes_to_store = random.sample(alive_nodes, REPLICATION_FACTOR)
-        node_to_send = random.choice(nodes_to_store)
-        nodes_to_store.remove(node_to_send)
-        files_map.update({file_name: nodes_to_store})
+        files_map.update({full_name: nodes_to_store})
+        temp = nodes_to_store.copy()
+        node_to_send = random.choice(temp)
+        temp.remove(node_to_send)
+
+        print(nodes_to_store)
+        print(node_to_send)
+        print(temp)
 
         client_socket.send("Starting".encode())
 
@@ -91,7 +91,8 @@ def process_command(command, client_socket, address):
     if fs_command == "get":
         file_name = args[1]
 
-        if not os.path.isfile(file_name):
+        if not os.path.isfile(ROOT_DIRECTORY+file_name):
+            print(ROOT_DIRECTORY+file_name)
             client_socket.send(f"{file_name} does not exist".encode())
             return
 
@@ -101,7 +102,7 @@ def process_command(command, client_socket, address):
         sock.settimeout(10)
         comm = f"{address}@{command}"
         sock.connect((node.split(':')[0], int(node.split(':')[1])))
-        sock.send(comm)
+        sock.send(comm.encode())
         sock.close()
 
     if fs_command == "rm":
@@ -142,9 +143,8 @@ def process_command(command, client_socket, address):
                 client_socket.send("Directory removed".encode())
                 return
             else:
-                nodes_file_stored = files_map.get(deletion_file)
 
-                for node in nodes_file_stored:
+                for node in alive_nodes:
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.settimeout(10)
                     comm = f"{address}@{command}"
