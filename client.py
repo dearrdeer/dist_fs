@@ -68,7 +68,7 @@ def send_comm(sock):
 			print("Wrong usage of command. Use get /path/to/file")
 			return 
 
-	if type == "cd ":
+	if type == "cd":
 		if len(sys.argv) == 3:
 			path_to_go = sys.argv[2]
 			if path_to_go[0] != '/':
@@ -76,9 +76,33 @@ def send_comm(sock):
 
 			comm = "cd " + path_to_go
 
+		else:
+			print("Wrong usage of command. Use cd /path/to/go")			
+			return
+
 	if type == "pwd":
 		print(my_directory)
 		return
+
+	if type == "rm":
+		if len(sys.argv) == 3:
+			file_to_del = sys.argv[2]
+			if file_to_del[0] != '/':
+				file_to_del = my_directory + file_to_del
+			comm = "rm " + file_to_del
+		else:
+			print("Wrong usage of command. Use rm /path/to/del")			
+			return			
+
+	if type == "rmrf":
+		if len(sys.argv) == 3:
+			file_to_del = sys.argv[2]
+			if file_to_del[0] != '/':
+				file_to_del = my_directory + file_to_del
+			comm = "rmrf " + file_to_del
+		else:
+			print("Wrong usage of command. Use rmrf /path/to/del")			
+			return
 
 	response = ""
 	sock.connect((MASTER_IP, MASTER_PORT))
@@ -133,8 +157,11 @@ def send_comm(sock):
 	sock.close()
 
 
+
 def write_current_path(path_to_go):
 	with open("directory.txt", "wb") as f:
+		if path_to_go[-1] != '/':
+			path_to_go += '/'
 		f.write(path_to_go.encode())
 
 if __name__ == "__main__":

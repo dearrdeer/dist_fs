@@ -69,10 +69,6 @@ def process_command(command, client_socket, address):
         node_to_send = random.choice(temp)
         temp.remove(node_to_send)
 
-        print(nodes_to_store)
-        print(node_to_send)
-        print(temp)
-
         client_socket.send("Starting".encode())
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -163,8 +159,9 @@ def process_command(command, client_socket, address):
                 client_socket.send(f"{deletion_file} does not exist".encode())
                 return
 
-    if command == "cd":
+    if fs_command == "cd":
         directory_to_go = args[1]
+        print(directory_to_go)
         if not os.path.isdir(ROOT_DIRECTORY + directory_to_go):
             client_socket.send("Directory does not exist".encode())
             return

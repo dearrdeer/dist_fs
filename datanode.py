@@ -46,7 +46,7 @@ def put(client_socket, path, filename):
 
 
 def get(client_socket, filename):
-    with open(filename, "rb") as f:
+    with open(ROOT_PATH+filename, "rb") as f:
         while True:
             # read the bytes from the file
             bytes_read = f.read(BUFFER_SIZE)
@@ -96,9 +96,11 @@ if __name__ == "__main__":
 
         # Connect to the client
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(10)
-        client.connect((client_ip, CLIENT_PORT))
-        client.settimeout(None)
+
+        if command.split(' ')[0] == 'put' or command.split(' ')[0] == 'get':
+            client.settimeout(10)
+            client.connect((client_ip, CLIENT_PORT))
+            client.settimeout(None)
 
         # Operate according to the command received
         type = command.split(' ')[0]
@@ -111,9 +113,13 @@ if __name__ == "__main__":
 
         if type == 'get':
             com = command.split(' ')[1]
-            get(client, command)
+            get(client, com)
 
         if type == 'rm':
             com = command.split(' ')[1]
             rm_dir(com)
+        if type == 'rmrf':
+            com = command.split(' ')[1]
+            rm_dirs(com)
+
         client.close()
