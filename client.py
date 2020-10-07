@@ -119,7 +119,7 @@ def send_comm(sock):
 			filename = path_to_file.split('/')[-1]
 			with open(filename, "wb") as f:
 				while True:
-					bytes_read = temp_socket.recv(BUFFER_SIZE)
+					bytes_read = temp_sock.recv(BUFFER_SIZE)
 					if not bytes_read:
 						break
 					f.write(bytes_read)

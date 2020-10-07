@@ -59,9 +59,9 @@ def process_command(command, client_socket, address):
             client_socket.send(f"{dir_where_put} does not exist".encode())
             return
 
-        # if os.path.isfile(ROOT_DIRECTORY+dir_where_put+'/'+file_name):
-         #   client_socket.send("File already exists".encode())
-         #   return
+        if os.path.isfile(ROOT_DIRECTORY+dir_where_put+'/'+file_name):
+        client_socket.send("File already exists".encode())
+        return
 
         if len(alive_nodes) < REPLICATION_FACTOR:
             client_socket.send("Number of alive data nodes is less than replication factor".encode())

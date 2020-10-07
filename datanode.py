@@ -79,7 +79,7 @@ if __name__ == "__main__":
         # Connect to the client
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((client_ip, CLIENT_PORT))
-        client.settimeout(None)
+        client.settimeout(3)
 
         # Operate according to the command received
         type = command.split(' ')[0]
