@@ -95,12 +95,10 @@ def send_comm(sock):
 			temp_sock.listen(1)
 
 			datanode, address = temp_sock.accept()
-			
 
 			with open(filename, "rb") as f:
 				while True:
 					bytes_read = f.read(BUFFER_SIZE)
-					print(bytes_read)
 					if not bytes_read:
 						#file transmitting is done
 						break
@@ -115,7 +113,7 @@ def send_comm(sock):
 			temp_sock.bind(('0.0.0.0',9999))
 			temp_sock.listen(1)
 
-			datanode, address = sock.accept()
+			datanode, address = temp_sock.accept()
 			filename = path_to_file.split('/')[-1]
 			with open(filename, "wb") as f:
 				while True:
