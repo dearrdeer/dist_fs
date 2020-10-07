@@ -7,7 +7,7 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/home/ayaz/PycharmProjects/dist_fs/dfs"
+ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
 REPLICATION_FACTOR = 1
 
 datanodes = ["localhost:8042", "localhost:8043", "localhost:8044"]
@@ -59,9 +59,9 @@ def process_command(command, client_socket, address):
             client_socket.send(f"{dir_where_put} does not exist".encode())
             return
 
-        if os.path.isfile(ROOT_DIRECTORY+dir_where_put+'/'+file_name):
-            client_socket.send("File already exists".encode())
-            return
+        # if os.path.isfile(ROOT_DIRECTORY+dir_where_put+'/'+file_name):
+         #   client_socket.send("File already exists".encode())
+         #   return
 
         if len(alive_nodes) < REPLICATION_FACTOR:
             client_socket.send("Number of alive data nodes is less than replication factor".encode())
