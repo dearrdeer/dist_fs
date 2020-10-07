@@ -69,16 +69,21 @@ def process_command(command, client_socket, address):
 
         os.mknod(ROOT_DIRECTORY + dir_where_put + '/' + file_name)
         nodes_to_store = random.sample(alive_nodes, REPLICATION_FACTOR)
+        node_to_send = random.choice(nodes_to_store)
+        nodes_to_store.remove(node_to_send)
         files_map.update({file_name: nodes_to_store})
 
+        client_socket.send("Starting".encode())
 
-        for node in nodes_to_store:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(10)
-            comm = f"{address}@{command}"
-            sock.connect((node.split(':')[0], int(node.split(':')[1])))
-            sock.send(comm.encode())
-            sock.close()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(10)
+        nodes = "$".join(nodes_to_store)
+
+        comm = f"{address}@{command}@{nodes}"
+        sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
+        sock.send(comm.encode())
+        sock.close()
+
 
         client_socket.send("File uploaded".encode())
         return
@@ -90,6 +95,7 @@ def process_command(command, client_socket, address):
             client_socket.send(f"{file_name} does not exist".encode())
             return
 
+        client_socket.send("Starting".encode())
         node = random.choice(files_map[file_name])
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(10)
@@ -156,6 +162,14 @@ def process_command(command, client_socket, address):
             else:
                 client_socket.send(f"{deletion_file} does not exist".encode())
                 return
+
+    if command == "cd":
+        directory_to_go = args[1]
+        if not os.path.isdir(ROOT_DIRECTORY + directory_to_go):
+            client_socket.send("Directory does not exist".encode())
+            return
+        client_socket.send("Success".encode())
+        return
 
 def ping_datanodes():
     alive_nodes.clear()
