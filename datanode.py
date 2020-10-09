@@ -5,7 +5,7 @@ import shutil
 
 BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
-NODE_PORT = 8044
+NODE_PORT = 8043
 SEPARATOR = ' '
 
 CLIENT_PORT = 9999
@@ -55,7 +55,36 @@ def mv(name,path):
     make_dir(path)
     full_path=ROOT_PATH+path
     shutil.move(name,full_path)
+def replicate(command,nodes):
+    node = nodes.split('$')
+    for n in node:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(10)
+        sock.connect((n.split(':')[0], int(n.split(':')[1])))
+        if ((command.split(" "))[0]== 'put'):           
+            command = f"{('0.0.0.0',9999)}@{command}"
+        sock.send(command.encode())
+        if ((command.split(" "))[0]== 'put'):
+            temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			temp_sock.bind(('0.0.0.0',9999))
+			temp_sock.listen(1)
+            
 
+			datanode, address = temp_sock.accept()
+			with open(filename, "rb") as f:
+				while True:
+					bytes_read = f.read(BUFFER_SIZE)
+					if not bytes_read:
+						#file transmitting is done
+						break
+					datanode.send(bytes_read)
+
+			print("File uploaded")
+			datanode.close()
+        sock.send(command.encode())
+        sock.close()
+        
+    
 def get(client_socket, filename):
     with open(ROOT_PATH+filename, "rb") as f:
         while True:
@@ -93,8 +122,8 @@ if __name__ == "__main__":
         if len(args) == 1:
             command = args[0]
         elif len(args) == 2:
-            address = args[0]
-            command = args[1]
+            command = args[0]
+            nodes = args[1]
         else:
             address = args[0]
             command = args[1]
@@ -103,7 +132,8 @@ if __name__ == "__main__":
         client_ip = address[2:address.rfind("'")]
         print(client_ip)
         print(command)
-
+        print(nodes)
+        
         # Connect to the client
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -143,3 +173,6 @@ if __name__ == "__main__":
             rm_dirs(com)
 
         client.close()
+        if (nodes):
+            replicate(command,nodes)
+                

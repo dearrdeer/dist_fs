@@ -8,7 +8,7 @@ NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
 ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
-REPLICATION_FACTOR = 1
+REPLICATION_FACTOR = 2
 
 datanodes = ["localhost:8042", "localhost:8043", "localhost:8044"]
 alive_nodes = []
@@ -70,7 +70,7 @@ def process_command(command, client_socket, address):
         sock.settimeout(10)
         nodes = "$".join(nodes_to_store)
 
-        comm = command
+        comm = f"{command}@{nodes}"
         sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
         sock.send(comm.encode())
         sock.close()
@@ -113,7 +113,7 @@ def process_command(command, client_socket, address):
 
         client_socket.send("File moved".encode())
         return
-        
+
     if fs_command == "put":
         file_name = args[1]
         dir_where_put = args[2]
@@ -145,7 +145,7 @@ def process_command(command, client_socket, address):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(10)
-        nodes = "$".join(nodes_to_store)
+        nodes = "$".join(temp)
 
         comm = f"{address}@{command}@{nodes}"
         sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
