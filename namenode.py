@@ -7,7 +7,7 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/home/ayaz/PycharmProjects/dist_fs/dfs"
+ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
 REPLICATION_FACTOR = 1
 
 datanodes = ["localhost:8042", "localhost:8043", "localhost:8044"]
@@ -44,11 +44,83 @@ def process_command(command, client_socket, address):
         client_socket.send(result.encode())
         return
 
+    if fs_command == "cp":
+        path = args[2]
+        path = path[:path.rfind('/')]
+        print(path)
+        file_to_store=(args[2].split('/'))[-1]
+        print(file_to_store)
+        if not os.path.isdir(ROOT_DIRECTORY + path):
+            client_socket.send(f"{path} does not exist".encode())
+            return
+        if os.path.isfile(ROOT_DIRECTORY+args[2]):
+            client_socket.send("File you want to copy to already exists".encode())
+            return
+        print(os.path.basename(args[2]))
+        os.mknod(ROOT_DIRECTORY + args[2])
+        nodes_to_store = random.sample(alive_nodes, REPLICATION_FACTOR)
+        files_map.update({args[2]: nodes_to_store})
+        temp = nodes_to_store.copy()
+        node_to_send = random.choice(temp)
+        temp.remove(node_to_send)
 
+        client_socket.send("Starting".encode())
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(10)
+        nodes = "$".join(nodes_to_store)
+
+        comm = command
+        sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
+        sock.send(comm.encode())
+        sock.close()
+
+
+        client_socket.send("File copied".encode())
+        return
+
+    if fs_command == "mv":
+        dir_where_mv = args[2]
+        dir_where_mv = dir_where_mv[:dir_where_mv.rfind('/')]
+        print(dir_where_mv)
+        file_to_move=(args[2].split('/'))[-1]
+        print(file_to_store)
+        if not os.path.isdir(ROOT_DIRECTORY + dir_where_mv):
+            client_socket.send(f"{dir_where_mv} does not exist".encode())
+            return
+
+        if os.path.isfile(ROOT_DIRECTORY+args[2]):
+            client_socket.send("File with such name already exists".encode())
+            return
+        print(os.path.basename(args[2]))
+        os.mknod(ROOT_DIRECTORY + args[2])
+        nodes_to_store = random.sample(alive_nodes, REPLICATION_FACTOR)
+        files_map.update({args[2]: nodes_to_store})
+        temp = nodes_to_store.copy()
+        node_to_send = random.choice(temp)
+        temp.remove(node_to_send)
+
+        client_socket.send("Starting".encode())
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(10)
+        nodes = "$".join(nodes_to_store)
+
+        comm = command
+        sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
+        sock.send(comm.encode())
+        sock.close()
+
+        client_socket.send("File moved".encode())
+        return
+        
     if fs_command == "put":
         file_name = args[1]
         dir_where_put = args[2]
-        full_name = dir_where_put+'/'+file_name
+        if (dir_where_put[-1]!="/"):
+            full_name = dir_where_put+'/'+file_name
+        else:
+             full_name = dir_where_put+file_name
 
         if not os.path.isdir(ROOT_DIRECTORY + dir_where_put):
             client_socket.send(f"{dir_where_put} does not exist".encode())
@@ -85,7 +157,9 @@ def process_command(command, client_socket, address):
         return
 
     if fs_command == "get":
+        print(args)
         file_name = args[1]
+        print(files_map)
 
         if not os.path.isfile(ROOT_DIRECTORY+file_name):
             print(ROOT_DIRECTORY+file_name)

@@ -29,7 +29,26 @@ def send_comm(sock):
 		else:
 			print("Wrong usage of command. Use ls path/to/dir")
 			return
-
+	
+	if type=="cp":
+		if len(sys.argv) == 4:
+			directory_to_copy = sys.argv[3]
+			if directory_to_copy[0] != '/':
+				directory_to_copy = my_directory + directory_to_copy
+			comm = "cp" + " " + sys.argv[2] + " " + directory_to_copy
+		else:
+			print("Wrong usage of command. Use cp file_to_copy path/to/dir")
+			return
+			
+	if type == "mv":
+		if len(sys.argv) == 4:
+			directory_to_copy = sys.argv[3]
+			if directory_to_copy[0] != '/':
+				directory_to_copy = my_directory + directory_to_copy
+			comm = "cp" + " " + sys.argv[2] + " " + directory_to_copy
+		else:
+			print("Wrong usage of command. Use cp file_to_copy path/to/dir")
+			return
 	if type == "mkdir":
 		if len(sys.argv) == 3:
 			path_to_create = sys.argv[2]
@@ -58,9 +77,11 @@ def send_comm(sock):
 		else:
 			print("Wrong usage of command. Use put /path/to/file /path/to/directory/in/dfs")			
 			return
+
 	if type == "get":
 		if len(sys.argv) == 3:
 			path_to_file = sys.argv[2]
+			print(path_to_file)
 			if path_to_file[0] != '/':
 				path_to_file = my_directory + path_to_file
 			comm = "get " + path_to_file
@@ -69,13 +90,11 @@ def send_comm(sock):
 			return 
 
 	if type == "cd":
-		if len(sys.argv) == 3:
-			path_to_go = sys.argv[2]
+		if len(sys.argv) == 3 or len(sys.argv) == 2:
+			path_to_go = sys.argv[2] if len(sys.argv) == 3 else '/'
 			if path_to_go[0] != '/':
-				path_to_go = my_directory + path_to_go
-
+				path_to_go = my_directory + path_to_go 		
 			comm = "cd " + path_to_go
-
 		else:
 			print("Wrong usage of command. Use cd /path/to/go")			
 			return
@@ -154,6 +173,9 @@ def send_comm(sock):
 		if response == "Success":
 			write_current_path(path_to_go)
 
+	if type == "cp":
+		if response == "Starting":
+			print("File copied")
 	sock.close()
 
 
