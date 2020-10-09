@@ -7,10 +7,10 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
-REPLICATION_FACTOR = 2
+ROOT_DIRECTORY = "/home/ayaz/PycharmProjects/dist_fs/dfs"
+REPLICATION_FACTOR = 3
 
-datanodes = ["localhost:8042", "localhost:8043", "localhost:8044"]
+datanodes = ["localhost:8041", "localhost:8042", "localhost:8043", "localhost:8044"]
 alive_nodes = []
 
 files_map = dict()
@@ -50,41 +50,45 @@ def process_command(command, client_socket, address):
         print(path)
         file_to_store=(args[2].split('/'))[-1]
         print(file_to_store)
+
         if not os.path.isdir(ROOT_DIRECTORY + path):
             client_socket.send(f"{path} does not exist".encode())
             return
         if os.path.isfile(ROOT_DIRECTORY+args[2]):
             client_socket.send("File you want to copy to already exists".encode())
             return
-        print(os.path.basename(args[2]))
-        os.mknod(ROOT_DIRECTORY + args[2])
-        nodes_to_store = random.sample(alive_nodes, REPLICATION_FACTOR)
-        files_map.update({args[2]: nodes_to_store})
-        temp = nodes_to_store.copy()
-        node_to_send = random.choice(temp)
-        temp.remove(node_to_send)
+
+        file = args[1]
+        file_name = file.split('/')[-1]
+        os.mknod(ROOT_DIRECTORY + path + '/' + file_name)
+        nodes = files_map.get(file)
+        copied = nodes.copy()
+        files_map.update({path:copied})
+        comm = f"{command}"
 
         client_socket.send("Starting".encode())
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(10)
-        nodes = "$".join(nodes_to_store)
-
-        comm = f"{command}@{nodes}"
-        sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
-        sock.send(comm.encode())
-        sock.close()
+        for node in nodes:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            sock.connect((node.split(':')[0], int(node.split(':')[1])))
+            sock.settimeout(None)
+            sock.send(comm.encode())
+            sock.close()
 
 
         client_socket.send("File copied".encode())
         return
 
     if fs_command == "mv":
+        file = args[1]
         dir_where_mv = args[2]
         dir_where_mv = dir_where_mv[:dir_where_mv.rfind('/')]
-        print(dir_where_mv)
-        file_to_move=(args[2].split('/'))[-1]
-        print(file_to_store)
+
+        if not os.path.isfile(ROOT_DIRECTORY+file):
+            client_socket.send(f"{file} does not exist".encode())
+            return
+
         if not os.path.isdir(ROOT_DIRECTORY + dir_where_mv):
             client_socket.send(f"{dir_where_mv} does not exist".encode())
             return
@@ -92,24 +96,25 @@ def process_command(command, client_socket, address):
         if os.path.isfile(ROOT_DIRECTORY+args[2]):
             client_socket.send("File with such name already exists".encode())
             return
-        print(os.path.basename(args[2]))
+
         os.mknod(ROOT_DIRECTORY + args[2])
-        nodes_to_store = random.sample(alive_nodes, REPLICATION_FACTOR)
-        files_map.update({args[2]: nodes_to_store})
-        temp = nodes_to_store.copy()
-        node_to_send = random.choice(temp)
-        temp.remove(node_to_send)
+        file = args[1]
+        os.remove(ROOT_DIRECTORY + file)
+
+        nodes = files_map.get(file)
+        copied = nodes.copy()
+        files_map.update({args[2]: copied})
+        comm = f"{command}"
 
         client_socket.send("Starting".encode())
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(10)
-        nodes = "$".join(nodes_to_store)
-
-        comm = command
-        sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
-        sock.send(comm.encode())
-        sock.close()
+        for node in nodes:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            sock.connect((node.split(':')[0], int(node.split(':')[1])))
+            sock.settimeout(None)
+            sock.send(comm.encode())
+            sock.close()
 
         client_socket.send("File moved".encode())
         return
