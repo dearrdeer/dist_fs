@@ -10,6 +10,7 @@ NODE_PORT = 8041
 SEPARATOR = ' '
 
 CLIENT_PORT = 9999
+REP_PORT = 9876
 ROOT_PATH = "/home/ayaz/PycharmProjects/dist_fs/data_node/datanode1"
 
 
@@ -53,6 +54,26 @@ def put(client_socket, path, filename):
     client_socket.send("File received".encode())
     client_socket.close()
 
+def get_replication(path, sock):
+    temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    temp_sock.bind(('0.0.0.0', CLIENT_PORT))
+    temp_sock.listen(1)
+
+    sock.send("Port opened".encode())
+
+    datanode, address = temp_sock.accept()
+    dirs = path[:path.rfind('/')]
+    make_dir(dirs)
+
+    with open(ROOT_PATH+path, "wb") as f:
+        while True:
+            bytes_read = datanode.recv(BUFFER_SIZE)
+            if not bytes_read:
+                break
+            f.write(bytes_read)
+
+    print("File replicated")
+    datanode.close()
 
 def mv(name, path):
     path = path[:path.rfind('/')]
@@ -60,50 +81,8 @@ def mv(name, path):
     full_path = ROOT_PATH + path
     shutil.move(name, full_path)
 
-
-def replicate(file, datanodes):
-    nodes = datanodes.split('$')
-
-    for node in nodes:
-        temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        temp_sock.settimeout(10)
-        temp_sock.connect((node.split(':')[0],int(node.split(':')[1])))
-        temp_sock.settimeout(None)
-        comm = f"replicating {file}"
-        temp_sock.send(comm.encode())
-        time.sleep(1)
-        response = temp_sock.recv(BUFFER_SIZE).decode()
-
-        if response == "Ready":
-            with open(ROOT_PATH + file, "rb") as f:
-                while True:
-                    # read the bytes from the file
-                    bytes_read = f.read(BUFFER_SIZE)
-                    if not bytes_read:
-                        # file transmitting is done
-                        break
-
-                    temp_sock.send(bytes_read)
-
-        temp_sock.close()
-
-
-def get_replication(file, sock):
-    sock.send("Ready".encode())
-    make_dir(file[:file.rfind('/')])
-    time.sleep(1)
-    time.sleep(1)
-    with open(ROOT_PATH + file, "wb") as f:
-        while True:
-            bytes_read = sock.recv(BUFFER_SIZE)
-            if not bytes_read:
-                break
-            f.write(bytes_read)
-        # Send a message of completeness and close connection
-    sock.close()
-
-def get(client_socket, filename):
-    with open(ROOT_PATH + filename, "rb") as f:
+def get(client_socket, path):
+    with open(ROOT_PATH + path, "rb") as f:
         while True:
             # read the bytes from the file
             bytes_read = f.read(BUFFER_SIZE)
@@ -125,7 +104,6 @@ if __name__ == "__main__":
         master_socket, address = node.accept()
         print(f"Got request from master")
         command = master_socket.recv(BUFFER_SIZE).decode()
-        master_socket.send("Command received".encode())
         print(f"Command from master {command}")
 
         if command == 'Yep':
@@ -166,21 +144,25 @@ if __name__ == "__main__":
             path = command.split(' ')[2]
             name = command.split(' ')[1]
             cp(name, path)
+            master_socket.send("complete".encode())
         if type == 'mv':
             path = command.split(' ')[2]
             name = command.split(' ')[1]
             mv(name, path)
+            master_socket.send("complete".encode())
         if type == 'put':
             path = command.split(' ')[2]
             name = command.split(' ')[1]
             put(client, path, name)
-            replicate(path+name, nodes)
+            master_socket.send("complete".encode())
+
         if type == 'replicating':
             file = command.split(' ')[1]
             get_replication(file, master_socket)
         if type == 'get':
             com = command.split(' ')[1]
             get(client, com)
+            master_socket.send("complete".encode())
 
         if type == 'mkdir':
             com = command.split(' ')[1]
@@ -189,8 +171,11 @@ if __name__ == "__main__":
         if type == 'rm':
             com = command.split(' ')[1]
             rm_dir(com)
+            master_socket.send("complete".encode())
         if type == 'rmrf':
             com = command.split(' ')[1]
             rm_dirs(com)
+            master_socket.send("complete".encode())
 
         client.close()
+        master_socket.close()

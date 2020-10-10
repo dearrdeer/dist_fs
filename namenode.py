@@ -139,7 +139,7 @@ def process_command(command, client_socket, address):
             client_socket.send("Number of alive data nodes is less than replication factor".encode())
             return
 
-        os.mknod(ROOT_DIRECTORY + dir_where_put + '/' + file_name)
+        os.mknod(ROOT_DIRECTORY + full_name)
         nodes_to_store = random.sample(alive_nodes, REPLICATION_FACTOR)
         files_map.update({full_name: nodes_to_store})
         temp = nodes_to_store.copy()
@@ -150,11 +150,39 @@ def process_command(command, client_socket, address):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(10)
-        nodes = "$".join(temp)
 
-        comm = f"{address}@{command}@{nodes}"
+        comm = f"{address}@{command}"
+        sock.settimeout(10)
         sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
+        sock.settimeout(None)
         sock.send(comm.encode())
+        response = sock.recv(BUFFER_SIZE).decode()
+        print(response)
+        for i in temp:
+            print("Sending message to datanode to open port")
+            comm = f"@replicating {full_name}"
+            temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            temp_sock.settimeout(10)
+            temp_sock.connect((i.split(':')[0], int(i.split(':')[1])))
+            temp_sock.settimeout(None)
+            temp_sock.send(comm.encode())
+            response = ""
+            while response == "":
+                response = temp_sock.recv(BUFFER_SIZE).decode()
+            temp_sock.close()
+            print(response)
+
+            print("Sending message to datanode to replicate the file")
+            comm =f"{(i.split(':')[0], int(i.split(':')[1]))}@get {full_name}"
+            temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            temp_sock.settimeout(10)
+            temp_sock.connect((node_to_send.split(':')[0], int(node_to_send.split(':')[1])))
+            temp_sock.settimeout(None)
+            temp_sock.send(comm.encode())
+            response = ""
+            while response == "":
+                response = temp_sock.recv(BUFFER_SIZE).decode()
+
         sock.close()
 
 
@@ -257,8 +285,6 @@ def ping_datanodes():
         sock.settimeout(None)
         if result == 0:
             sock.send(comm.encode())
-            response = sock.recv(BUFFER_SIZE)
-            print(response.decode())
             alive_nodes.append(node)
         else:
             print(f"{node} is dead\n")
