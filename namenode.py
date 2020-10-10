@@ -2,6 +2,8 @@ import socket
 import os
 import shutil
 import random
+import time
+from threading import Thread
 
 BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
@@ -40,30 +42,26 @@ def process_command(command, client_socket, address):
             return
 
         files = os.listdir(ROOT_DIRECTORY + directory_to_list)
-        result = " ".join(f for f in files)
+        result = ". " + " ".join(f for f in files)
         client_socket.send(result.encode())
         return
 
     if fs_command == "cp":
         path = args[2]
-        path = path[:path.rfind('/')]
-        print(path)
-        file_to_store=(args[2].split('/'))[-1]
-        print(file_to_store)
+        file = args[1]
+        file_name = file.split('/')[-1]
 
         if not os.path.isdir(ROOT_DIRECTORY + path):
             client_socket.send(f"{path} does not exist".encode())
             return
-        if os.path.isfile(ROOT_DIRECTORY+args[2]):
+        if os.path.isfile(ROOT_DIRECTORY+args[2] + '/' + file_name):
             client_socket.send("File you want to copy to already exists".encode())
             return
 
-        file = args[1]
-        file_name = file.split('/')[-1]
         os.mknod(ROOT_DIRECTORY + path + '/' + file_name)
         nodes = files_map.get(file)
         copied = nodes.copy()
-        files_map.update({path:copied})
+        files_map.update({path+ '/' + file_name:copied})
         comm = f"{command}"
 
         client_socket.send("Starting".encode())
@@ -84,6 +82,7 @@ def process_command(command, client_socket, address):
         file = args[1]
         dir_where_mv = args[2]
         dir_where_mv = dir_where_mv[:dir_where_mv.rfind('/')]
+        file_name = file.split('/')[-1]
 
         if not os.path.isfile(ROOT_DIRECTORY+file):
             client_socket.send(f"{file} does not exist".encode())
@@ -97,7 +96,7 @@ def process_command(command, client_socket, address):
             client_socket.send("File with such name already exists".encode())
             return
 
-        os.mknod(ROOT_DIRECTORY + args[2])
+        os.mknod(ROOT_DIRECTORY + args[2] + '/' + file_name)
         file = args[1]
         os.remove(ROOT_DIRECTORY + file)
 
@@ -276,27 +275,33 @@ def process_command(command, client_socket, address):
         return
 
 def ping_datanodes():
-    alive_nodes.clear()
-    for node in datanodes:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(10)
-        comm = "Yep"
-        result = sock.connect_ex((node.split(':')[0], int(node.split(':')[1])))
-        sock.settimeout(None)
-        if result == 0:
-            sock.send(comm.encode())
-            alive_nodes.append(node)
-        else:
-            print(f"{node} is dead\n")
-        sock.close()
+    global alive_nodes
+    global files_map
+    while True:
+        for node in datanodes:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            comm = "Yep"
+            result = sock.connect_ex((node.split(':')[0], int(node.split(':')[1])))
+            sock.settimeout(None)
+            if result == 0:
+                sock.send(comm.encode())
+                if not node in alive_nodes:
+                    alive_nodes.append(node)
+                print(f"{node} is connected")
+            else:
+                print(f"{node} is dead\n")
+            sock.close()
+        print(alive_nodes)
+        time.sleep(30)
 
 if __name__ == "__main__":
     master = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     master.bind((NODE_IP, NODE_PORT))
     master.listen(1)
 
-    ping_datanodes()
-
+    Thread(target=ping_datanodes).start()
+    print(alive_nodes)
     while True:
         client_socket, address = master.accept()
         bytes_read = client_socket.recv(BUFFER_SIZE)

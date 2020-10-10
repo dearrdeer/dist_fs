@@ -11,7 +11,7 @@ SEPARATOR = ' '
 
 CLIENT_PORT = 9999
 REP_PORT = 9876
-ROOT_PATH = "/home/ayaz/PycharmProjects/dist_fs/data_node/datanode1"
+ROOT_PATH = "/home/ayaz/PycharmProjects/dist_fs/data_node/datanode1/data"
 
 
 def make_dir(path):
@@ -31,11 +31,9 @@ def rm_dirs(path):
     os.system('rm -rf ' + ROOT_PATH + path)
 
 
-def cp(name, path):
-    path = path[:path.rfind('/')]
-    make_dir(path)
-    full_path = ROOT_PATH + path
-    shutil.copy2(ROOT_PATH+name, full_path)
+def cp(old_path, new_path):
+    make_dir(new_path)
+    shutil.copy2(ROOT_PATH+old_path, ROOT_PATH+new_path)
 
 
 # Datanode believes namenode in the correctness of the directory
@@ -76,10 +74,9 @@ def get_replication(path, sock):
     datanode.close()
 
 def mv(name, path):
-    path = path[:path.rfind('/')]
     make_dir(path)
     full_path = ROOT_PATH + path
-    shutil.move(name, full_path)
+    shutil.move(ROOT_PATH+name, full_path)
 
 def get(client_socket, path):
     with open(ROOT_PATH + path, "rb") as f:
@@ -141,9 +138,9 @@ if __name__ == "__main__":
 
         # Operate according to the command received
         if type == 'cp':
-            path = command.split(' ')[2]
-            name = command.split(' ')[1]
-            cp(name, path)
+            new_path = command.split(' ')[2]
+            old_path = command.split(' ')[1]
+            cp(old_path, new_path)
             master_socket.send("complete".encode())
         if type == 'mv':
             path = command.split(' ')[2]

@@ -45,7 +45,7 @@ def send_comm(sock):
 			directory_to_copy = sys.argv[3]
 			if directory_to_copy[0] != '/':
 				directory_to_copy = my_directory + directory_to_copy
-			comm = "cp" + " " + sys.argv[2] + " " + directory_to_copy
+			comm = "mv" + " " + sys.argv[2] + " " + directory_to_copy
 		else:
 			print("Wrong usage of command. Use mv file_to_copy path/to/dir")
 			return
