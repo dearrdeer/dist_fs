@@ -10,8 +10,8 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/home/ayaz/PycharmProjects/dist_fs/dfs"
-REPLICATION_FACTOR = 3
+ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
+REPLICATION_FACTOR = 2
 
 datanodes = ["localhost:8041", "localhost:8042", "localhost:8043", "localhost:8044"]
 alive_nodes = []
@@ -38,10 +38,25 @@ def process_command(command, client_socket, address):
                 response = sock.recv(BUFFER_SIZE).decode()
             space += int(response)
             sock.close()
-        print(space)
-        client_socket.send("Initiated".encode())
+   
+        client_socket.send(f"Initiated. Space free: {space}".encode())
         return
+    if fs_command == "usage":
+        space = 0
+        for node in alive_nodes:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            sock.connect((node.split(':')[0], int(node.split(':')[1])))
+            sock.settimeout(None)
+            sock.send(fs_command.encode())
+            response = ""
+            while response == "":
+                response = sock.recv(BUFFER_SIZE).decode()
+            space += int(response)
+            sock.close()
 
+        client_socket.send(f"Used: {space}".encode())
+        return
     if fs_command == "info":
         path = args[1]
         if not os.path.isfile(ROOT_DIRECTORY+path):

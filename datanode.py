@@ -7,12 +7,12 @@ import glob
 
 BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
-NODE_PORT = 8043
+NODE_PORT = 8044
 SEPARATOR = ' '
 
 
 CLIENT_PORT = 9999
-ROOT_PATH = "/home/ayaz/PycharmProjects/dist_fs/data_node/datanode1"
+ROOT_PATH = "/run/media/ravioo/disk/Download/DS_P2/dist_fs/data2"
 
 file_size = 0
 def make_dir(path):
@@ -184,6 +184,10 @@ if __name__ == "__main__":
             for f in files:
                 os.remove(f)
             space = shutil.disk_usage(ROOT_PATH).free
+            print(space)
+            master_socket.send(f"{space}".encode())
+        if type == 'usage':
+            space = shutil.disk_usage(ROOT_PATH).used
             print(space)
             master_socket.send(f"{space}".encode())
 
