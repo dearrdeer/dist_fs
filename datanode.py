@@ -178,6 +178,9 @@ if __name__ == "__main__":
             files = glob.glob(ROOT_PATH + '/*')
             for f in files:
                 os.remove(f)
+            space = shutil.disk_usage(ROOT_PATH).free
+            print(space)
+            master_socket.send(f"{space}".encode())
 
         client.close()
         master_socket.close()

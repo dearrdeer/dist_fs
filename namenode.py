@@ -24,6 +24,7 @@ def process_command(command, client_socket, address):
 
     if fs_command == "init":
         files = glob.glob(ROOT_DIRECTORY + '/*')
+        space = 0
         for f in files:
             os.remove(f)
         for node in alive_nodes:
@@ -32,9 +33,16 @@ def process_command(command, client_socket, address):
             sock.connect((node.split(':')[0], int(node.split(':')[1])))
             sock.settimeout(None)
             sock.send(fs_command.encode())
+            response = ""
+            while response == "":
+                response = sock.recv(BUFFER_SIZE).decode()
+            space += int(response)
             sock.close()
+        print(space)
         client_socket.send("Initiated".encode())
         return
+
+
     if fs_command == "mkdir":
         directory_to_create = args[1]
         directory_where_create = directory_to_create[:directory_to_create.rfind('/')]
