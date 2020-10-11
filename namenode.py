@@ -3,13 +3,14 @@ import os
 import shutil
 import random
 import time
+import glob
 from threading import Thread
 
 BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/home/ayaz/PycharmProjects/dist_fs/dfs"
+ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
 REPLICATION_FACTOR = 3
 
 datanodes = ["localhost:8041", "localhost:8042", "localhost:8043", "localhost:8044"]
@@ -21,6 +22,19 @@ def process_command(command, client_socket, address):
     args = command.split(' ')
     fs_command = args[0]
 
+    if fs_command == "init":
+        files = glob.glob(ROOT_DIRECTORY + '/*')
+        for f in files:
+            os.remove(f)
+        for node in alive_nodes:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            sock.connect((node.split(':')[0], int(node.split(':')[1])))
+            sock.settimeout(None)
+            sock.send(fs_command.encode())
+            sock.close()
+        client_socket.send("Initiated".encode())
+        return
     if fs_command == "mkdir":
         directory_to_create = args[1]
         directory_where_create = directory_to_create[:directory_to_create.rfind('/')]

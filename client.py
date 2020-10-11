@@ -29,7 +29,8 @@ def send_comm(sock):
 		else:
 			print("Wrong usage of command. Use ls path/to/dir")
 			return
-	
+	if type=="init":
+		comm = "init"
 	if type=="cp":
 		if len(sys.argv) == 4:
 			directory_to_copy = sys.argv[3]

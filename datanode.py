@@ -2,6 +2,7 @@ import os
 import sys
 import socket
 import shutil
+import glob
 import time
 
 BUFFER_SIZE = 4096
@@ -11,7 +12,7 @@ SEPARATOR = ' '
 
 CLIENT_PORT = 9999
 REP_PORT = 9876
-ROOT_PATH = "/home/ayaz/PycharmProjects/dist_fs/data_node/datanode1/data"
+ROOT_PATH = "/run/media/ravioo/disk/Download/DS_P2/dist_fs/data"
 
 
 def make_dir(path):
@@ -173,6 +174,10 @@ if __name__ == "__main__":
             com = command.split(' ')[1]
             rm_dirs(com)
             master_socket.send("complete".encode())
+        if type == 'init':
+            files = glob.glob(ROOT_PATH + '/*')
+            for f in files:
+                os.remove(f)
 
         client.close()
         master_socket.close()
