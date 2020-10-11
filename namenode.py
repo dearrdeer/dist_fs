@@ -10,14 +10,14 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
+ROOT_DIRECTORY = "/home/ayaz/PycharmProjects/dist_fs/dfs"
 REPLICATION_FACTOR = 3
 
 datanodes = ["localhost:8041", "localhost:8042", "localhost:8043", "localhost:8044"]
 alive_nodes = []
 
 files_map = dict()
-
+files_size = dict()
 def process_command(command, client_socket, address):
     args = command.split(' ')
     fs_command = args[0]
@@ -42,6 +42,15 @@ def process_command(command, client_socket, address):
         client_socket.send("Initiated".encode())
         return
 
+    if fs_command == "info":
+        path = args[1]
+        if not os.path.isfile(ROOT_DIRECTORY+path):
+            client_socket.send("File does not exist".encode())
+            return
+        response = str(files_size.get(path))
+        response = response + 'B\n' + " ".join(files_map.get(path))
+        client_socket.send(response.encode())
+        return
 
     if fs_command == "mkdir":
         directory_to_create = args[1]
@@ -179,6 +188,7 @@ def process_command(command, client_socket, address):
         sock.send(comm.encode())
         response = sock.recv(BUFFER_SIZE).decode()
         print(response)
+        files_size.update({full_name:int(response.split(' ')[1])})
         for i in temp:
             print("Sending message to datanode to open port")
             comm = f"@replicating {full_name}"

@@ -2,19 +2,19 @@ import os
 import sys
 import socket
 import shutil
-import glob
 import time
+import glob
 
 BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
-NODE_PORT = 8041
+NODE_PORT = 8043
 SEPARATOR = ' '
 
+
 CLIENT_PORT = 9999
-REP_PORT = 9876
-ROOT_PATH = "/run/media/ravioo/disk/Download/DS_P2/dist_fs/data"
+ROOT_PATH = "/home/ayaz/PycharmProjects/dist_fs/data_node/datanode1"
 
-
+file_size = 0
 def make_dir(path):
     # Just create all absent directories specified by namenode
     creation_path = ROOT_PATH + path
@@ -39,6 +39,7 @@ def cp(old_path, new_path):
 
 # Datanode believes namenode in the correctness of the directory
 def put(client_socket, path, filename):
+    global file_size
     # If there is no specified by namenode directory datanode create such
     make_dir(path)
     file = ROOT_PATH + path + '/' + filename
@@ -49,12 +50,14 @@ def put(client_socket, path, filename):
             if not bytes_read:
                 break
             f.write(bytes_read)
+    file_size = os.path.getsize(file)
     # Send a message of completeness and close connection
     client_socket.send("File received".encode())
     client_socket.close()
 
 def get_replication(path, sock):
     temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    time.sleep(1)
     temp_sock.bind(('0.0.0.0', CLIENT_PORT))
     temp_sock.listen(1)
 
@@ -75,7 +78,8 @@ def get_replication(path, sock):
     datanode.close()
 
 def mv(name, path):
-    make_dir(path)
+    dirs = path[:path.rfind('/')]
+    make_dir(dirs)
     full_path = ROOT_PATH + path
     shutil.move(ROOT_PATH+name, full_path)
 
@@ -97,6 +101,7 @@ if __name__ == "__main__":
     node = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     node.bind((NODE_IP, NODE_PORT))
     node.listen(1)
+
 
     while True:
         master_socket, address = node.accept()
@@ -152,7 +157,7 @@ if __name__ == "__main__":
             path = command.split(' ')[2]
             name = command.split(' ')[1]
             put(client, path, name)
-            master_socket.send("complete".encode())
+            master_socket.send(f"complete {file_size}".encode())
 
         if type == 'replicating':
             file = command.split(' ')[1]
