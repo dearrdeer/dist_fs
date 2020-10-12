@@ -10,10 +10,10 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
-REPLICATION_FACTOR = 2
+ROOT_DIRECTORY = "/home/vagrant/dfs"
+REPLICATION_FACTOR = 3
 
-datanodes = ["localhost:8041", "localhost:8042", "localhost:8043", "localhost:8044"]
+datanodes = []
 # Array to store which nodes is alive
 alive_nodes = []
 
@@ -29,10 +29,9 @@ def process_command(command, client_socket, address):
 
     if fs_command == "init":
         # Remove everything in the root directory of the name node which is identical to DFS structure
-        files = glob.glob(ROOT_DIRECTORY + '/*')
-        for f in files:
-            os.remove(f)
+        shutil.rmtree(ROOT_DIRECTORY, ignore_errors=True)
         space = 0
+        os.mkdir(ROOT_DIRECTORY)
         # Pass command to all nodes to perform init
         for node in alive_nodes:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -128,6 +127,7 @@ def process_command(command, client_socket, address):
         copied = nodes.copy()
         # Update the filename and new location 
         files_map.update({path+ '/' + file_name:copied})
+        files_size.update({path+ '/' + file_name:files_size.get(path+ '/' + file_name)})
         # Command to all todes
         comm = f"{command}"
         client_socket.send("Starting".encode())
@@ -251,8 +251,15 @@ def process_command(command, client_socket, address):
             print(ROOT_DIRECTORY+file_name)
             client_socket.send(f"{file_name} does not exist".encode())
             return
+        
+        nodes = [ip for ip in files_map[file_name] if ip in alive_nodes]
+        
+        if len(nodes) == 0:
+            client_socket.send(f"No alive nodes contain file".encode())
+            return
+
         client_socket.send("Starting".encode())
-        node = random.choice(files_map[file_name])
+        node = random.choice(nodes)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(10)
         comm = f"{address}@{command}"
@@ -278,6 +285,8 @@ def process_command(command, client_socket, address):
                 nodes_file_stored = files_map.get(deletion_file)
                 # Remove in all nodes stores it
                 for node in nodes_file_stored:
+                    if not node in alive_nodes:
+                        continue
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.settimeout(10)
                     comm = f"{address}@{command}"
@@ -351,6 +360,9 @@ def ping_datanodes():
         time.sleep(30)
 
 if __name__ == "__main__":
+    #Potential datanodes
+    for i in range(11,21):
+        datanodes.append(f'10.0.0.{i}:8042')
     # Listen for client connects
     master = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     master.bind((NODE_IP, NODE_PORT))
