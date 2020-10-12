@@ -57,7 +57,7 @@ Other work(report, client, deployment) was performed in collaboration.
 #### 5. __How to run__ <a name="how"></a>
 #### 6. Supported client commands:
 * Initialize client storage
-Form: $ python3 client.py init
+  Form: $ python3 client.py init
 * File read
 Form: $ python3 client.py get /path/to/file
 * File write
