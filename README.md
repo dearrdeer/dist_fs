@@ -10,9 +10,9 @@
 #### Link to [Docker Image datanode](https://hub.docker.com/repository/docker/deardeer322/datanode)
 
 #### Contents:
-0. [Project description ] (#anchors-in-markdown)
-1. [Components of created DFS] (#)
-2. [Description of created DFS] (#dfs)
+0. [Project description ](#anchors-in-markdown)
+1. [Components of created DFS](#)
+2. [Description of created DFS](#dfs)
 
 #### 0. __Project description__ <a name="anchors-in-markdown"></a>
 
