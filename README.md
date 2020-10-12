@@ -56,11 +56,11 @@ Ravida Saitova, datanode
 Other work(report, client, deployment) was performed in collaboration.
 #### 5. __How to run__ <a name="how"></a>
 #### 6. Supported client commands:
-* Initialize client storage
+1. Initialize client storage
   Form: $ python3 client.py init
-* File read
+2. File read
 Form: $ python3 client.py get /path/to/file
-* File write
+3. File write
 Form: $ python3 client.py put /path/to/file /path/to/directory/in/dfs
 * File or empty directory delete
 Form: $ python3 client.py rm /path/to/del
