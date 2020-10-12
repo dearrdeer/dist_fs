@@ -55,11 +55,11 @@ Now we need to replicate the file we got in order to DFS to be fault tolerant.
 
 #### 4. __How to run__ <a name="how"></a>
 
-__4.1 Prerequisites. 
+__4.1 Prerequisites:__
 
 You will need virtual private subnet 10.0.0.0/24. Namenode will look for data storages in ips range [10.0.0.11, 10.0.0.20]
 
-__4.2 Docker:
+__4.2 Docker:__
 
 Run the datanode docker image in you storage nodes:
 
@@ -69,13 +69,13 @@ Run the namenode docker image in you master node:
 
   -docker run -p 9000:9000 -t -i deardeer322/namenode
 
-__4.3 Client: 
+__4.3 Client:__ 
 
 Make sure the client is also in the VPC. Otherwise NAT will block connections 
 from DFS nodes to the client.
 Make sure MASTER_IP is pointing to the IP of your namenode.
 
-__4.4 Run the commands:
+__4.4 Run the commands:__
 
 `python3 client.py command args*`
 
