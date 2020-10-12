@@ -29,7 +29,7 @@ def send_comm(sock):
 			# Prepare command to the namenode
 			comm = "info " + file_to_info
 		else:
-			print("Wrong usage of command. Use ls path/to/dir")
+			print("Wrong usage of command. Use info path/to/dir")
 			return
 
 	if type=="init":
