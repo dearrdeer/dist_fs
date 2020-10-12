@@ -180,9 +180,8 @@ if __name__ == "__main__":
             rm_dirs(com)
             master_socket.send("complete".encode())
         if type == 'init':
-            files = glob.glob(ROOT_PATH + '/*')
-            for f in files:
-                os.remove(f)
+            shutil.rmtree(ROOT_PATH, ignore_errors=True)
+            os.mkdir(ROOT_PATH)
             space = shutil.disk_usage(ROOT_PATH).free
             print(space)
             master_socket.send(f"{space}".encode())

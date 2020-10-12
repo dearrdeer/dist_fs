@@ -32,6 +32,9 @@ def send_comm(sock):
 	if type=="init":
 		comm = "init"
 
+	if type=="usage":
+		comm = "usage"
+
 	if type == "ls":
 		if len(sys.argv) == 2 or len(sys.argv) == 3:
 			directory_to_list = my_directory if len(sys.argv) == 2 else sys.argv[2]
