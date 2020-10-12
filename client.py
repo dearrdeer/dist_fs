@@ -29,13 +29,13 @@ def send_comm(sock):
 			print("Wrong usage of command. Use ls path/to/dir")
 			return
 
-	if type=="init":
+	elif type=="init":
 		comm = "init"
 
-	if type=="usage":
+	elif type=="usage":
 		comm = "usage"
 
-	if type == "ls":
+	elif type == "ls":
 		if len(sys.argv) == 2 or len(sys.argv) == 3:
 			directory_to_list = my_directory if len(sys.argv) == 2 else sys.argv[2]
 			if directory_to_list[0] != '/':
@@ -46,7 +46,7 @@ def send_comm(sock):
 			print("Wrong usage of command. Use ls path/to/dir")
 			return
 	
-	if type=="cp":
+	elif type=="cp":
 		if len(sys.argv) == 4:
 			directory_to_copy = sys.argv[3]
 			if directory_to_copy[0] != '/':
@@ -56,7 +56,7 @@ def send_comm(sock):
 			print("Wrong usage of command. Use cp file_to_copy path/to/dir")
 			return
 			
-	if type == "mv":
+	elif type == "mv":
 		if len(sys.argv) == 4:
 			directory_to_copy = sys.argv[3]
 			if directory_to_copy[0] != '/':
@@ -65,7 +65,7 @@ def send_comm(sock):
 		else:
 			print("Wrong usage of command. Use mv file_to_copy path/to/dir")
 			return
-	if type == "mkdir":
+	elif type == "mkdir":
 		if len(sys.argv) == 3:
 			path_to_create = sys.argv[2]
 			if path_to_create[0] != '/':
@@ -75,7 +75,7 @@ def send_comm(sock):
 			print("Wrong usage of command. Use mkdir path/to/dir/to/create")
 			return
 
-	if type == "put":
+	elif type == "put":
 		if len(sys.argv) == 4:
 			filename = sys.argv[2]
 			path_in_dfs = sys.argv[3]
@@ -94,7 +94,7 @@ def send_comm(sock):
 			print("Wrong usage of command. Use put /path/to/file /path/to/directory/in/dfs")			
 			return
 
-	if type == "get":
+	elif type == "get":
 		if len(sys.argv) == 3:
 			path_to_file = sys.argv[2]
 			print(path_to_file)
@@ -105,7 +105,7 @@ def send_comm(sock):
 			print("Wrong usage of command. Use get /path/to/file")
 			return 
 
-	if type == "cd":
+	elif type == "cd":
 		if len(sys.argv) == 3 or len(sys.argv) == 2:
 			path_to_go = sys.argv[2] if len(sys.argv) == 3 else '/'
 			if path_to_go[0] != '/':
@@ -115,11 +115,11 @@ def send_comm(sock):
 			print("Wrong usage of command. Use cd /path/to/go")			
 			return
 
-	if type == "pwd":
+	elif type == "pwd":
 		print(my_directory)
 		return
 
-	if type == "rm":
+	elif type == "rm":
 		if len(sys.argv) == 3:
 			file_to_del = sys.argv[2]
 			if file_to_del[0] != '/':
@@ -129,7 +129,7 @@ def send_comm(sock):
 			print("Wrong usage of command. Use rm /path/to/del")			
 			return			
 
-	if type == "rmrf":
+	elif type == "rmrf":
 		if len(sys.argv) == 3:
 			file_to_del = sys.argv[2]
 			if file_to_del[0] != '/':
@@ -138,6 +138,9 @@ def send_comm(sock):
 		else:
 			print("Wrong usage of command. Use rmrf /path/to/del")			
 			return
+	else:
+		print("Unknown command")
+		return
 
 	response = ""
 	sock.connect((MASTER_IP, MASTER_PORT))
