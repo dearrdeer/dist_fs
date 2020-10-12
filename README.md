@@ -31,12 +31,12 @@ The primary function of storage servers is to provide clients with access to dat
 
 #### 2. __Description of the created DFS__ <a name="dfs"></a>
 
-![DFS](https://ibb.co/jWQbMcM)
+![DFS](https://i.ibb.co/F0ymwSw/DFS-1.png)
 <div style="page-break-after: always;"></div>
 
 In case of replication, diagram is the following:
 
-![REPL](https://ibb.co/yW4HNHC)     
+![REPL](https://i.ibb.co/GcHzdzD/DFS.png)     
 <div style="page-break-after: always;"></div>
                       
 #### 3. __Implementation details__ <a name="implementation"></a>
@@ -56,31 +56,31 @@ Ravida Saitova, datanode
 Other work(report, client, deployment) was performed in collaboration.
 #### 5. __How to run__ <a name="how"></a>
 #### 6. Supported client commands:
-Initialize client storage
+* Initialize client storage
 Form: $ python3 client.py init
-File read
+* File read
 Form: $ python3 client.py get /path/to/file
-File write
-	Form: $ python3 client.py put /path/to/file /path/to/directory/in/dfs
-File or empty directory delete
+* File write
+Form: $ python3 client.py put /path/to/file /path/to/directory/in/dfs
+* File or empty directory delete
 Form: $ python3 client.py rm /path/to/del
-File copy
+* File copy
 Form: $ python3 client.py cp file_to_copy path/to/dir
-File move
+* File move
 Form: $ python3 client.py mv file_to_copy path/to/dir
-Open directory
+* Open directory
 Form: $ python3 client.py cd /path/to/go
-Read directory
+* Read directory
 Form: $ python3 client.py ls path/to/dir
-Make directory 
+* Make directory 
 Form: $ python3 client.py mkdir path/to/dir/to/create
-Delete directory with files
+* Delete directory with files
 Form: $ python3 client.py rmrf /path/to/del
-Show current directory 
+* Show current directory 
 Form: $ python3 client.py pwd
-Get the info of the file 
+* Get the info of the file 
 Form: $ python3 client.py info path/to/dir
-Used space info
+* Used space info
 Form: $ python3 client.py usage
 
 
