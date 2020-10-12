@@ -61,8 +61,9 @@ def put(client_socket, path, filename):
 
 def get_replication(path, sock):
     # When we need to replicate the file 
-    # Connect to the namenode client socket and tell the port from where we will send replicating file 
-    # Namenode will tell the datanode to replicate in to perform get operation from current datanode/client  
+    # Receiver datanode opens the port 
+    # Nameserver imitate get request from the datanode where this file stored 
+    # Store file in receiver datanode 
     temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     time.sleep(1)
     temp_sock.bind(('0.0.0.0', CLIENT_PORT))
