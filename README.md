@@ -1,7 +1,7 @@
 # Distributes sysytems
 # Project2. Simple DFS
 
-####Team members:
+#### Team members:
 *Ayaz Baykov, [@dearrdeer](@dearrdeer)
 *Ravida Saitova, [@RavidaSa](@RavidaSa)
 
