@@ -56,41 +56,56 @@ Ravida Saitova, datanode
 Other work(report, client, deployment) was performed in collaboration.
 #### 5. __How to run__ <a name="how"></a>
 #### 6. Supported client commands:
-1. Initialize client storage
+* Initialize client storage
 
- Form: $ python3 client.py init
+  Form: `$ python3 client.py init`
  
-2. File read
+* File read
 
-Form: $ python3 client.py get /path/to/file
+  Form: $ python3 client.py get /path/to/file
 
-3. File write
+* File write
 
-Form: $ python3 client.py put /path/to/file /path/to/directory/in/dfs
+  Form: $ python3 client.py put /path/to/file /path/to/directory/in/dfs
 
 * File or empty directory delete
 
-Form: $ python3 client.py rm /path/to/del
+  Form: $ python3 client.py rm /path/to/del
 
 * File copy
 
-Form: $ python3 client.py cp file_to_copy path/to/dir
+  Form: $ python3 client.py cp file_to_copy path/to/dir
+  
 * File move
 
-Form: $ python3 client.py mv file_to_copy path/to/dir
+  Form: $ python3 client.py mv file_to_copy path/to/dir
+  
 * Open directory
-Form: $ python3 client.py cd /path/to/go
+
+  Form: $ python3 client.py cd /path/to/go
+  
 * Read directory
-Form: $ python3 client.py ls path/to/dir
+
+  Form: $ python3 client.py ls path/to/dir
+  
 * Make directory 
-Form: $ python3 client.py mkdir path/to/dir/to/create
+
+  Form: $ python3 client.py mkdir path/to/dir/to/create
+  
 * Delete directory with files
-Form: $ python3 client.py rmrf /path/to/del
+
+  Form: $ python3 client.py rmrf /path/to/del
+  
 * Show current directory 
-Form: $ python3 client.py pwd
+
+  Form: $ python3 client.py pwd
+  
 * Get the info of the file 
-Form: $ python3 client.py info path/to/dir
+
+  Form: $ python3 client.py info path/to/dir
+  
 * Used space info
-Form: $ python3 client.py usage
+
+  Form: $ python3 client.py usage
 
 
