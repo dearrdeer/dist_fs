@@ -2,8 +2,8 @@
 # Project2. Simple DFS
 
 #### Team members:
-* Ayaz Baykov, [@dearrdeer](@dearrdeer)
-* Ravida Saitova, [@RavidaSa](@RavidaSa)
+* Ayaz Baykov, [@dearrdeer](@dearrdeer), [a.baykov@innopolis.university](a.baykov@innopolis.university), BS18-DS01
+* Ravida Saitova, [@RavidaSa](@RavidaSa),[r.saitova@innopolis.university](r.saitova@innopolis.university), BS18-DS01
 
 #### Link to [Github repository](https://github.com/dearrdeer/dist_fs)
 #### Link to [Docker Image namenode](https://hub.docker.com/repository/docker/deardeer322/namenode)
