@@ -17,7 +17,8 @@
 4. [How to run](#how)
 5. [Supported commands](#commands)
 6. [Challanges we faced](#challange)
-7. [Member contribution](#member)
+7. [Drawbacks of our design](#drawbacks)
+8. [Member contribution](#member)
 
 #### 0. __Project description__ <a name="anchors-in-markdown"></a>
 
@@ -67,7 +68,7 @@ Run the datanode docker image in you storage nodes:
   
 Run the namenode docker image in you master node:
 
-  -docker run -p 9000:9000 -t -i deardeer322/namenode
+  - docker run -p 9000:9000 -t -i deardeer322/namenode
 
 __4.3 Client:__ 
 
@@ -134,7 +135,26 @@ __4.4 Run the commands:__
 
 #### 6. __Challanges we faced__ <a name="challange"></a>
 
-#### 7. __Member contribution__ <a name="member"></a>
+1. How to prohibit malicious users from directly connecting to storages. 
+
+  Solution: prohibit all non-master connections to datanode. Instead it is the client who waits for the datanode to make actions.
+
+2. How to implement replication without significantly losing in simplicity.
+
+Solution: use already defined methods.
+
+3. Deployment. If the client is not in the VPC datanode can not connect because the IP is transformed via NAT. 
+
+Solution: created additional instances in VPS with clients.
+
+#### 7. __Drawbacks of our design__ <a name="drawbacks"></a> 
+
+1. Single point of failure. We did not have time to implement Secondary Namenode.
+2. Some set of unlucky events may lead to data inconsistency. Example: the node having a replica of file A goes offline, then the system receives command to delete that file. And when the node will be repaired it will still have that file even if our system does not have it.
+3. Fault tolerance works only with the assumption that the majority of servers do not fail simultaneously.
+4. We also assumed that servers can not die after the beginning of execution of some command and before the end of it. We had to do that because otherwise code would become too complex to manage.
+
+#### 8. __Member contribution__ <a name="member"></a>
 * Ayaz Baykov, namenode
 * Ravida Saitova, datanode
 
