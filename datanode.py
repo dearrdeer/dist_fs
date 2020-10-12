@@ -7,12 +7,12 @@ import glob
 
 BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
-NODE_PORT = 8044
+NODE_PORT = 8042
 SEPARATOR = ' '
 
 
 CLIENT_PORT = 9999
-ROOT_PATH = "/run/media/ravioo/disk/Download/DS_P2/dist_fs/data2"
+ROOT_PATH = "/home/vagrant/datanode"
 
 file_size = 0
 def make_dir(path):
@@ -25,19 +25,15 @@ def make_dir(path):
 
 
 def rm_dir(path):
-    # Remove file or empty directory 
     os.remove(ROOT_PATH + path)
 
 
 def rm_dirs(path):
-    # Remove directory 
     os.system('rm -rf ' + ROOT_PATH + path)
 
 
 def cp(old_path, new_path):
-    # Make reported by namenode directories where we want to copy in the file
     make_dir(new_path)
-    # Copy file
     shutil.copy2(ROOT_PATH+old_path, ROOT_PATH+new_path)
 
 
@@ -60,10 +56,6 @@ def put(client_socket, path, filename):
     client_socket.close()
 
 def get_replication(path, sock):
-    # When we need to replicate the file 
-    # Receiver datanode opens the port 
-    # Nameserver imitate get request from the datanode where this file stored 
-    # Store file in receiver datanode 
     temp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     time.sleep(1)
     temp_sock.bind(('0.0.0.0', CLIENT_PORT))
@@ -86,14 +78,12 @@ def get_replication(path, sock):
     datanode.close()
 
 def mv(name, path):
-    # Move file 
     dirs = path[:path.rfind('/')]
     make_dir(dirs)
     full_path = ROOT_PATH + path
     shutil.move(ROOT_PATH+name, full_path)
 
 def get(client_socket, path):
-    # Pass file to the client
     with open(ROOT_PATH + path, "rb") as f:
         while True:
             # read the bytes from the file
@@ -112,7 +102,7 @@ if __name__ == "__main__":
     node.bind((NODE_IP, NODE_PORT))
     node.listen(1)
 
-    # According to the command received call function 
+
     while True:
         master_socket, address = node.accept()
         print(f"Got request from master")
@@ -127,7 +117,6 @@ if __name__ == "__main__":
         command = ""
         nodes = ""
 
-        # Parse command received from the namenode 
         if len(args) == 1:
             command = args[0]
         elif len(args) == 2:

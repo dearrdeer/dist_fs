@@ -10,10 +10,10 @@ BUFFER_SIZE = 4096
 NODE_IP = '0.0.0.0'
 NODE_PORT = 9000
 SEPARATOR = ' '
-ROOT_DIRECTORY = "/run/media/ravioo/disk/Download/DS_NAME"
-REPLICATION_FACTOR = 2
+ROOT_DIRECTORY = "/home/vagrant/dfs"
+REPLICATION_FACTOR = 3
 
-datanodes = ["localhost:8041", "localhost:8042", "localhost:8043", "localhost:8044"]
+datanodes = ["10.0.0.11:8042", "10.0.0.12:8042", "10.0.0.13:8042", "10.0.0.14:8042"]
 # Array to store which nodes is alive
 alive_nodes = []
 
@@ -29,10 +29,9 @@ def process_command(command, client_socket, address):
 
     if fs_command == "init":
         # Remove everything in the root directory of the name node which is identical to DFS structure
-        files = glob.glob(ROOT_DIRECTORY + '/*')
-        for f in files:
-            os.remove(f)
+        shutil.rmtree(ROOT_DIRECTORY, ignore_errors=True)
         space = 0
+        os.mkdir(ROOT_DIRECTORY)
         # Pass command to all nodes to perform init
         for node in alive_nodes:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
