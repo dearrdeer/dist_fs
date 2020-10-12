@@ -6,20 +6,21 @@ MASTER_IP = 'localhost'
 MASTER_PORT = 9000
 my_directory = "/"
 
-
+# Send command to the namenode socket
 def send_comm(sock):
 	comm = ""
 	filename = ""
 	path_to_file = ""
 	path_to_go = ""
-	#check 1
+	# Check if command was provided
 	if len(sys.argv) == 1:
 		print("No command provided")
 		return
-
+	# Identify its type 
 	type = sys.argv[1]
 
 	if type == "info":
+	# Request to information about scpecific file 
 		if len(sys.argv) == 3:
 			file_to_info = sys.argv[2]
 			if file_to_info[0] != '/':

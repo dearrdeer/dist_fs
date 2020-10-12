@@ -329,7 +329,7 @@ def process_command(command, client_socket, address):
         return
 
 def ping_datanodes():
-    # Check alive nodes
+    # Check is the node alive
     global alive_nodes
     global files_map
     while True:
@@ -347,25 +347,25 @@ def ping_datanodes():
             else:
                 print(f"{node} is dead\n")
             sock.close()
-        print(alive_nodes)
+        
         time.sleep(30)
 
 if __name__ == "__main__":
+    # Listen for client connects
     master = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     master.bind((NODE_IP, NODE_PORT))
     master.listen(1)
-
+    # Pereodically chech the datanodes to detect failed ones
     Thread(target=ping_datanodes).start()
-    print(alive_nodes)
+    # Process comands that came from client and send it further to the datanodes if needed
     while True:
+        # Accept command
         client_socket, address = master.accept()
         bytes_read = client_socket.recv(BUFFER_SIZE)
-
         if not bytes_read:
             continue
-
         command = bytes_read.decode()
+        # Print to ensure command received correctly 
         print(command)
-
         process_command(command, client_socket, address)
         client_socket.close()
