@@ -13,7 +13,7 @@ SEPARATOR = ' '
 ROOT_DIRECTORY = "/home/vagrant/dfs"
 REPLICATION_FACTOR = 3
 
-datanodes = ["10.0.0.11:8042", "10.0.0.12:8042", "10.0.0.13:8042", "10.0.0.14:8042"]
+datanodes = []
 # Array to store which nodes is alive
 alive_nodes = []
 
@@ -360,6 +360,9 @@ def ping_datanodes():
         time.sleep(30)
 
 if __name__ == "__main__":
+    #Potential datanodes
+    for i in range(11,21):
+        datanodes.append(f'10.0.0.{i}:8042')
     # Listen for client connects
     master = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     master.bind((NODE_IP, NODE_PORT))
