@@ -14,8 +14,10 @@
 1. [Components of created DFS](#components)
 2. [Description of created DFS](#dfs)
 3. [Implementation detailes](#implementation)
-4. [Member contribution](#member)
-5. [How to run](#how)
+4. [How to run](#how)
+5. [Supported commands](#commands)
+6. [Challanges we faced](#challange)
+7. [Member contribution](#member)
 
 #### 0. __Project description__ <a name="anchors-in-markdown"></a>
 
@@ -50,12 +52,34 @@ But when we can not handle commands without storage servers, the namenode will t
 Let’s say the client made a command: put alice.txt /user/alice.  Which is basically uploading the file “alice.txt” into directory /user/alice. After receiving and checking the command namenode will tell the client to open a specific port to where the chosen datanode will connect. Then it randomly chooses an alive storage node and sends clients' addresses to it. So, shortly, the client will be considered as a server and storage node will request the file and download to itself. In case of “get” commands it is again datanode who is going to connect and push data to the client. This kind of implementation provides us way to exclude the situations when malicious user 
 
 Now we need to replicate the file we got in order to DFS to be fault tolerant. 
-#### 4. __Member contribution__ <a name="member"></a>
-Ayaz Baykov, namenode
-Ravida Saitova, datanode
-Other work(report, client, deployment) was performed in collaboration.
-#### 5. __How to run__ <a name="how"></a>
-#### 6. Supported client commands:
+
+#### 4. __How to run__ <a name="how"></a>
+
+__4.1 Prerequisites. 
+
+You will need virtual private subnet 10.0.0.0/24. Namenode will look for data storages in ips range [10.0.0.11, 10.0.0.20]
+
+__4.2 Docker:
+
+Run the datanode docker image in you storage nodes:
+
+  - docker run -p 8042:8042 deardeer322/datanode
+  
+Run the namenode docker image in you master node:
+
+  -docker run -p 9000:9000 -t -i deardeer322/namenode
+
+__4.3 Client: 
+
+Make sure the client is also in the VPC. Otherwise NAT will block connections 
+from DFS nodes to the client.
+Make sure MASTER_IP is pointing to the IP of your namenode.
+
+__4.4 Run the commands:
+
+`python3 client.py command args*`
+
+#### 5. Supported client commands: <a name="commands"></a>
 * Initialize client storage
 
   Form: `$ python3 client.py init`
@@ -108,4 +132,11 @@ Other work(report, client, deployment) was performed in collaboration.
 
   Form: `$ python3 client.py usage`
 
+#### 6. __Challanges we faced__ <a name="challange"></a>
+
+#### 7. __Member contribution__ <a name="member"></a>
+* Ayaz Baykov, namenode
+* Ravida Saitova, datanode
+
+Other work(report, client, deployment) was performed in collaboration.
 
